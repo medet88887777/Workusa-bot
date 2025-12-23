@@ -1,44 +1,49 @@
 import express from "express";
 
 const app = express();
+app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
+const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
+// Главная страница
 app.get("/", (req, res) => {
-  res.send(`
-    <html>
-      <head>
-        <title>WorkUSA</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 40px;
-          }
-          button {
-            font-size: 20px;
-            padding: 15px 30px;
-            margin: 15px;
-            cursor: pointer;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>WorkUSA</h1>
-        <p>Выберите роль</p>
+  res.send("WorkUSA bot is live ✅");
+});
 
-        <button onclick="alert('Заказчик платит $5')">
-          Я Заказчик ($5)
-        </button>
+// Webhook от Telegram
+app.post("/webhook", async (req, res) => {
+  try {
+    const message = req.body.message;
+    if (!message) return res.sendStatus(200);
 
-        <button onclick="alert('Исполнитель платит $5')">
-          Я Исполнитель ($5)
-        </button>
-      </body>
-    </html>
-  `);
+    const chatId = message.chat.id;
+    const text = message.text || "";
+
+    let reply = "Напиши /start";
+
+    if (text === "/start") {
+      reply =
+        "Добро пожаловать в WorkUSA 🇺🇸\n\n" +
+        "1️⃣ Заказчик\n" +
+        "2️⃣ Исполнитель";
+    }
+
+    await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: reply,
+      }),
+    });
+
+    res.sendStatus(200);
+  } catch (e) {
+    res.sendStatus(200);
+  }
 });
 
 app.listen(PORT, () => {
-  console.log("Server started on port " + PORT);
+  console.log("Server running on port", PORT);
 });
