@@ -1,9 +1,12 @@
-import TelegramBot from "node-telegram-bot-api";
+const http = require("http");
 
-const token = process.env.BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const PORT = process.env.PORT || 3000;
 
-bot.on("message", (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Привет! Бот WorkUSA запущен 🚀");
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("WorkUSA bot is running ✅");
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
